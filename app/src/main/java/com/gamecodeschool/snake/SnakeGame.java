@@ -261,7 +261,7 @@ class SnakeGame extends SurfaceView implements Runnable{
         mPaint.setColor(Color.argb(255, 0, 0, 0));
         mPaint.setTextSize(60);
         mCanvas.drawText("Alicia", 1600, 120, mPaint);
-        mCanvas.drawText("Trang Phan", 1600, 190, mPaint);
+        mCanvas.drawText("Trang", 1600, 190, mPaint);
     }
 
     private boolean isClicked(int touchX, int touchY){
