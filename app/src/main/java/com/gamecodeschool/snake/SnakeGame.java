@@ -202,7 +202,7 @@ class SnakeGame extends SurfaceView implements Runnable{
             mCanvas = mSurfaceHolder.lockCanvas();
 
             // Fill the screen with a color
-            mCanvas.drawColor(Color.argb(255, 26, 180, 100));
+            mCanvas.drawColor(Color.argb(255, 26, 128, 182));
 
             // Set the size and color of the mPaint for the text
             mPaint.setColor(Color.argb(255, 255, 255, 255));
@@ -216,7 +216,6 @@ class SnakeGame extends SurfaceView implements Runnable{
             mSnake.draw(mCanvas, mPaint);
 
             drawPause();
-            displayNames(mCanvas);
 
             // Draw some text while paused
             if(mPaused){
@@ -255,13 +254,6 @@ class SnakeGame extends SurfaceView implements Runnable{
         String buttonTxt = mPaused ? "Resume" : "Pause";
         mCanvas.drawText(buttonTxt,(leftX+20),120,mPaint);
 
-    }
-
-    public void displayNames(Canvas mCanvas) {
-        mPaint.setColor(Color.argb(255, 0, 0, 0));
-        mPaint.setTextSize(60);
-        mCanvas.drawText("Alicia", 1600, 120, mPaint);
-        mCanvas.drawText("Trang", 1600, 190, mPaint);
     }
 
     private boolean isClicked(int touchX, int touchY){
