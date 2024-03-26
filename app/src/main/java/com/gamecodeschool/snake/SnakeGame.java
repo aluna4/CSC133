@@ -1,6 +1,7 @@
 package com.gamecodeschool.snake;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -8,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -17,6 +19,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.io.IOException;
 
+@SuppressLint("ViewConstructor")
 class SnakeGame extends SurfaceView implements Runnable{
 
     // Objects for the game loop/thread
@@ -28,26 +31,26 @@ class SnakeGame extends SurfaceView implements Runnable{
     private volatile boolean mPaused = true;
 
     // for playing sound effects
-    private SoundPool mSP;
+    private final SoundPool mSP;
     private int mEat_ID = -1;
     private int mCrashID = -1;
 
     // The size in segments of the playable area
     private final int NUM_BLOCKS_WIDE = 40;
-    private int mNumBlocksHigh;
+    private final int mNumBlocksHigh;
 
     // How many points does the player have
     private int mScore;
 
     // Objects for drawing
     private Canvas mCanvas;
-    private SurfaceHolder mSurfaceHolder;
-    private Paint mPaint;
+    private final SurfaceHolder mSurfaceHolder;
+    private final Paint mPaint;
 
     // A snake ssss
-    private Snake mSnake;
+    private final Snake mSnake;
     // And an apple
-    private Apple mApple;
+    private final Apple mApple;
 
 
     // This is the constructor method that gets called
@@ -61,19 +64,15 @@ class SnakeGame extends SurfaceView implements Runnable{
         mNumBlocksHigh = size.y / blockSize;
 
         // Initialize the SoundPool
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build();
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
 
-            mSP = new SoundPool.Builder()
-                    .setMaxStreams(5)
-                    .setAudioAttributes(audioAttributes)
-                    .build();
-        } else {
-            mSP = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-        }
+        mSP = new SoundPool.Builder()
+                .setMaxStreams(5)
+                .setAudioAttributes(audioAttributes)
+                .build();
         try {
             AssetManager assetManager = context.getAssets();
             AssetFileDescriptor descriptor;
@@ -190,6 +189,7 @@ class SnakeGame extends SurfaceView implements Runnable{
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
 
             mPaused =true;
+            newGame();
         }
 
     }
@@ -206,28 +206,30 @@ class SnakeGame extends SurfaceView implements Runnable{
 
             // Set the size and color of the mPaint for the text
             mPaint.setColor(Color.argb(255, 255, 255, 255));
-            mPaint.setTextSize(120);
+            mPaint.setTextSize(75);
 
             // Draw the score
-            mCanvas.drawText("" + mScore, 20, 120, mPaint);
+            mCanvas.drawText(String.valueOf(mScore), 20, 120, mPaint);
 
             // Draw the apple and the snake
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
+
+            drawPause();
 
             // Draw some text while paused
             if(mPaused){
 
                 // Set the size and color of the mPaint for the text
                 mPaint.setColor(Color.argb(255, 255, 255, 255));
-                mPaint.setTextSize(250);
+                mPaint.setTextSize(150);
 
                 // Draw the message
                 // We will give this an international upgrade soon
                 //mCanvas.drawText("Tap To Play!", 200, 700, mPaint);
                 mCanvas.drawText(getResources().
                                 getString(R.string.tap_to_play),
-                        200, 700, mPaint);
+                        180, 700, mPaint);
             }
 
 
@@ -236,25 +238,49 @@ class SnakeGame extends SurfaceView implements Runnable{
         }
     }
 
+    private Rect pauseButton;
+
+    private void drawPause(){
+        int leftX = getWidth() - 320;
+        int rightX = mPaused ? (leftX + 250) : (leftX + 210);
+        int top = 50;
+        int bottom = 150;
+        //drawing the pause button to implement pause function on screen during game
+        pauseButton = new Rect(leftX, top, rightX, bottom);
+        mPaint.setColor(Color.argb(150,255,153,51)); //orange button color
+        mCanvas.drawRect(pauseButton,mPaint);
+        mPaint.setColor(Color.argb(255,0,0,0)); //black txt color
+        mPaint.setTextSize(60);
+        String buttonTxt = mPaused ? "Resume" : "Pause";
+        mCanvas.drawText(buttonTxt,(leftX+20),120,mPaint);
+
+    }
+
+    private boolean isClicked(int touchX, int touchY){
+        return pauseButton.contains(touchX,touchY);
+    }
+
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_UP:
-                if (mPaused) {
-                    mPaused = false;
-                    newGame();
+        int x = (int) motionEvent.getX();
+        int y = (int) motionEvent.getY();
+        // Let the Snake class handle the input
+        if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
+            if (isClicked(x, y)) {
+                mPaused = !mPaused;
+                //newGame();
 
-                    // Don't want to process snake direction for this tap
-                    return true;
-                }
-
-                // Let the Snake class handle the input
+                // Don't want to process snake direction for this tap
+                return true;
+            } else if (mPaused) {
+                mPaused = false;
+                newGame();
+                return true;
+            } else {
                 mSnake.switchHeading(motionEvent);
-                break;
-
-            default:
-                break;
-
+            }
         }
         return true;
     }
