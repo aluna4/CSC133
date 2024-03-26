@@ -18,6 +18,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.io.IOException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 @SuppressLint("ViewConstructor")
 class SnakeGame extends SurfaceView implements Runnable{
@@ -52,11 +54,18 @@ class SnakeGame extends SurfaceView implements Runnable{
     // And an apple
     private final Apple mApple;
 
+    // Declare a Bitmap object for the background image
+    private Bitmap mBackgroundBitmap;
+
 
     // This is the constructor method that gets called
     // from SnakeActivity
     public SnakeGame(Context context, Point size) {
         super(context);
+
+        // Load the background image
+        mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background);
+        mBackgroundBitmap = Bitmap.createScaledBitmap(mBackgroundBitmap, size.x, size.y, true);
 
         // Work out how many pixels each block is
         int blockSize = size.x / NUM_BLOCKS_WIDE;
@@ -201,8 +210,11 @@ class SnakeGame extends SurfaceView implements Runnable{
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
 
+            // Draw the background image
+            mCanvas.drawBitmap(mBackgroundBitmap, 0, 0, null);
+
             // Fill the screen with a color
-            mCanvas.drawColor(Color.argb(255, 26, 128, 182));
+            //mCanvas.drawColor(Color.argb(255, 26, 180, 100));
 
             // Set the size and color of the mPaint for the text
             mPaint.setColor(Color.argb(255, 255, 255, 255));
@@ -216,6 +228,7 @@ class SnakeGame extends SurfaceView implements Runnable{
             mSnake.draw(mCanvas, mPaint);
 
             drawPause();
+            displayNames(mCanvas);
 
             // Draw some text while paused
             if(mPaused){
@@ -254,6 +267,13 @@ class SnakeGame extends SurfaceView implements Runnable{
         String buttonTxt = mPaused ? "Resume" : "Pause";
         mCanvas.drawText(buttonTxt,(leftX+20),120,mPaint);
 
+    }
+
+    public void displayNames(Canvas mCanvas) {
+        mPaint.setColor(Color.argb(255, 0, 0, 0));
+        mPaint.setTextSize(60);
+        mCanvas.drawText("Alicia", 1600, 120, mPaint);
+        mCanvas.drawText("Trang", 1600, 190, mPaint);
     }
 
     private boolean isClicked(int touchX, int touchY){
