@@ -46,8 +46,7 @@ class SnakeGame extends SurfaceView implements Runnable{
     private Canvas mCanvas;
     private final SurfaceHolder mSurfaceHolder;
     private final Paint mPaint;
-
-    // A snake ssss
+    private Point loc;
     private final Snake mSnake;
     // And an apple
     private final Apple mApple;
@@ -91,16 +90,13 @@ class SnakeGame extends SurfaceView implements Runnable{
         // Initialize the drawing objects
         mSurfaceHolder = getHolder();
         mPaint = new Paint();
+        loc = new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh);
 
         // Call the constructors of our two game objects
-        mApple = new Apple(context,
-                new Point(NUM_BLOCKS_WIDE,
-                        mNumBlocksHigh),
+        mApple = new Apple(context,loc,
                 blockSize);
 
-        mSnake = new Snake(context,
-                new Point(NUM_BLOCKS_WIDE,
-                        mNumBlocksHigh),
+        mSnake = new Snake(context,loc,
                 blockSize);
 
     }
@@ -113,7 +109,7 @@ class SnakeGame extends SurfaceView implements Runnable{
         mSnake.reset(NUM_BLOCKS_WIDE, mNumBlocksHigh);
 
         // Get the apple ready for dinner
-        mApple.spawn();
+        mApple.reset(loc.x,loc.y);
 
         // Reset the mScore
         mScore = 0;
@@ -174,7 +170,7 @@ class SnakeGame extends SurfaceView implements Runnable{
         if(mSnake.checkDinner(mApple.getLocation())){
             // This reminds me of Edge of Tomorrow.
             // One day the apple will be ready!
-            mApple.spawn();
+            mApple.reset(loc.x,loc.y);
 
             // Add to  mScore
             mScore = mScore + 1;
@@ -270,7 +266,6 @@ class SnakeGame extends SurfaceView implements Runnable{
         if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
             if (isClicked(x, y)) {
                 mPaused = !mPaused;
-                //newGame();
 
                 // Don't want to process snake direction for this tap
                 return true;
