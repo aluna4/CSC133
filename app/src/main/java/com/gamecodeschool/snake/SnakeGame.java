@@ -18,6 +18,9 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.io.IOException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 
 @SuppressLint("ViewConstructor")
 class SnakeGame extends SurfaceView implements Runnable{
@@ -52,11 +55,18 @@ class SnakeGame extends SurfaceView implements Runnable{
     // And an apple
     private final Apple mApple;
 
+    // Declare a Bitmap object for the background image
+    private Bitmap mBackgroundBitmap;
+
 
     // This is the constructor method that gets called
     // from SnakeActivity
     public SnakeGame(Context context, Point size) {
         super(context);
+
+        // Load the background image
+        mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background);
+        mBackgroundBitmap = Bitmap.createScaledBitmap(mBackgroundBitmap, size.x, size.y, true);
 
         // Work out how many pixels each block is
         int blockSize = size.x / NUM_BLOCKS_WIDE;
@@ -201,21 +211,23 @@ class SnakeGame extends SurfaceView implements Runnable{
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
 
-            // Fill the screen with a color
-            mCanvas.drawColor(Color.argb(255, 26, 128, 182));
+            // Draw the background image
+            mCanvas.drawBitmap(mBackgroundBitmap, 0, 0, null);
+
 
             // Set the size and color of the mPaint for the text
             mPaint.setColor(Color.argb(255, 255, 255, 255));
             mPaint.setTextSize(75);
 
             // Draw the score
-            mCanvas.drawText(String.valueOf(mScore), 20, 120, mPaint);
+            mCanvas.drawText(String.valueOf(mScore), 100, 120, mPaint);
 
             // Draw the apple and the snake
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
 
             drawPause();
+            displayNames(mCanvas);
 
             // Draw some text while paused
             if(mPaused){
@@ -225,11 +237,10 @@ class SnakeGame extends SurfaceView implements Runnable{
                 mPaint.setTextSize(150);
 
                 // Draw the message
-                // We will give this an international upgrade soon
                 //mCanvas.drawText("Tap To Play!", 200, 700, mPaint);
                 mCanvas.drawText(getResources().
                                 getString(R.string.tap_to_play),
-                        180, 700, mPaint);
+                        580, 500, mPaint);
             }
 
 
@@ -241,8 +252,8 @@ class SnakeGame extends SurfaceView implements Runnable{
     private Rect pauseButton;
 
     private void drawPause(){
-        int leftX = getWidth() - 320;
-        int rightX = mPaused ? (leftX + 250) : (leftX + 210);
+        int leftX = getWidth() - 420;
+        int rightX = mPaused ? (leftX + 250) : (leftX + 200);
         int top = 50;
         int bottom = 150;
         //drawing the pause button to implement pause function on screen during game
@@ -253,6 +264,16 @@ class SnakeGame extends SurfaceView implements Runnable{
         mPaint.setTextSize(60);
         String buttonTxt = mPaused ? "Resume" : "Pause";
         mCanvas.drawText(buttonTxt,(leftX+20),120,mPaint);
+
+    }
+
+    public void displayNames(Canvas mCanvas) {
+        Typeface customFont = Typeface.createFromAsset(getContext().getAssets(), "font/font1.ttf");
+        mPaint.setTypeface(customFont);
+
+        mPaint.setColor(Color.argb(255, 0, 0, 0));
+        mPaint.setTextSize(60);
+        mCanvas.drawText("Alicia & Trang", 850, 100, mPaint);
 
     }
 
