@@ -54,7 +54,7 @@ class SnakeGame extends SurfaceView implements Runnable{
     private final Snake mSnake;
     // And an apple
     private final Apple mApple;
-
+    private final BonusApple mBonusApple;
     // Declare a Bitmap object for the background image
     private Bitmap mBackgroundBitmap;
 
@@ -107,7 +107,10 @@ class SnakeGame extends SurfaceView implements Runnable{
                 new Point(NUM_BLOCKS_WIDE,
                         mNumBlocksHigh),
                 blockSize);
-
+        mBonusApple = new BonusApple(context,
+                new Point(NUM_BLOCKS_WIDE,
+                        mNumBlocksHigh),
+                blockSize);
         mSnake = new Snake(context,
                 new Point(NUM_BLOCKS_WIDE,
                         mNumBlocksHigh),
@@ -124,6 +127,7 @@ class SnakeGame extends SurfaceView implements Runnable{
 
         // Get the apple ready for dinner
         mApple.spawn();
+        mBonusApple.spawn();
 
         // Reset the mScore
         mScore = 0;
@@ -185,12 +189,19 @@ class SnakeGame extends SurfaceView implements Runnable{
             // This reminds me of Edge of Tomorrow.
             // One day the apple will be ready!
             mApple.spawn();
-
             // Add to  mScore
             mScore = mScore + 1;
-
             // Play a sound
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
+            // Check if the snake eats the bonus apple
+        }
+
+        if (mSnake.checkDinner(mBonusApple.getLocation())) {
+
+            // Snake ate a bonus apple, increase score by 2
+            mScore += 2;
+            // Respawn the bonus apple
+            mBonusApple.spawn();
         }
 
         // Did the snake die?
@@ -225,6 +236,8 @@ class SnakeGame extends SurfaceView implements Runnable{
             // Draw the apple and the snake
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
+            // Draw the bonus apple
+            mBonusApple.draw(mCanvas, mPaint, System.currentTimeMillis());
 
             drawPause();
             displayNames(mCanvas);
