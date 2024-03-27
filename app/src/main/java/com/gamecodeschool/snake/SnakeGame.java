@@ -20,6 +20,7 @@ import android.view.SurfaceView;
 import java.io.IOException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 
 @SuppressLint("ViewConstructor")
 class SnakeGame extends SurfaceView implements Runnable{
@@ -213,15 +214,13 @@ class SnakeGame extends SurfaceView implements Runnable{
             // Draw the background image
             mCanvas.drawBitmap(mBackgroundBitmap, 0, 0, null);
 
-            // Fill the screen with a color
-            //mCanvas.drawColor(Color.argb(255, 26, 180, 100));
 
             // Set the size and color of the mPaint for the text
             mPaint.setColor(Color.argb(255, 255, 255, 255));
             mPaint.setTextSize(75);
 
             // Draw the score
-            mCanvas.drawText(String.valueOf(mScore), 20, 120, mPaint);
+            mCanvas.drawText(String.valueOf(mScore), 100, 120, mPaint);
 
             // Draw the apple and the snake
             mApple.draw(mCanvas, mPaint);
@@ -238,11 +237,10 @@ class SnakeGame extends SurfaceView implements Runnable{
                 mPaint.setTextSize(150);
 
                 // Draw the message
-                // We will give this an international upgrade soon
                 //mCanvas.drawText("Tap To Play!", 200, 700, mPaint);
                 mCanvas.drawText(getResources().
                                 getString(R.string.tap_to_play),
-                        180, 700, mPaint);
+                        580, 500, mPaint);
             }
 
 
@@ -254,8 +252,8 @@ class SnakeGame extends SurfaceView implements Runnable{
     private Rect pauseButton;
 
     private void drawPause(){
-        int leftX = getWidth() - 320;
-        int rightX = mPaused ? (leftX + 250) : (leftX + 210);
+        int leftX = getWidth() - 420;
+        int rightX = mPaused ? (leftX + 250) : (leftX + 200);
         int top = 50;
         int bottom = 150;
         //drawing the pause button to implement pause function on screen during game
@@ -270,10 +268,13 @@ class SnakeGame extends SurfaceView implements Runnable{
     }
 
     public void displayNames(Canvas mCanvas) {
+        Typeface customFont = Typeface.createFromAsset(getContext().getAssets(), "font/font1.ttf");
+        mPaint.setTypeface(customFont);
+
         mPaint.setColor(Color.argb(255, 0, 0, 0));
         mPaint.setTextSize(60);
-        mCanvas.drawText("Alicia", 1600, 120, mPaint);
-        mCanvas.drawText("Trang", 1600, 190, mPaint);
+        mCanvas.drawText("Alicia & Trang", 850, 100, mPaint);
+
     }
 
     private boolean isClicked(int touchX, int touchY){
