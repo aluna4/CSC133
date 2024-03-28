@@ -50,6 +50,9 @@ class SnakeGame extends SurfaceView implements Runnable{
     private final Snake mSnake;
     // And an apple
     private final Apple mApple;
+    private final BonusApple mBonusApple;
+    private gameVisuals vis;
+    //private Rect pauseButton;
 
 
     // This is the constructor method that gets called
@@ -92,9 +95,13 @@ class SnakeGame extends SurfaceView implements Runnable{
         mPaint = new Paint();
         loc = new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh);
 
+        //gameVisuals vis = new gameVisuals(mCanvas, mPaint);
+
         // Call the constructors of our two game objects
         mApple = new Apple(context,loc,
                 blockSize);
+        mBonusApple = new BonusApple(context,
+                new Point(loc.x,loc.y), blockSize);
 
         mSnake = new Snake(context,loc,
                 blockSize);
@@ -110,6 +117,7 @@ class SnakeGame extends SurfaceView implements Runnable{
 
         // Get the apple ready for dinner
         mApple.reset(loc.x,loc.y);
+        mBonusApple.reset(loc.x,loc.y);
 
         // Reset the mScore
         mScore = 0;
@@ -177,6 +185,16 @@ class SnakeGame extends SurfaceView implements Runnable{
 
             // Play a sound
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
+            // Check if the snake eats the bonus apple
+        }
+
+        if (mSnake.checkDinner(mBonusApple.getLocation())) {
+
+            // Snake ate a bonus apple, increase score by 2
+            mScore += 2;
+            mSP.play(mEat_ID, 1, 1, 0, 0, 1);
+            // Respawn the bonus apple
+            mBonusApple.reset(loc.x,loc.y);
         }
 
         // Did the snake die?
@@ -195,66 +213,34 @@ class SnakeGame extends SurfaceView implements Runnable{
     public void draw() {
         // Get a lock on the mCanvas
         if (mSurfaceHolder.getSurface().isValid()) {
-            mCanvas = mSurfaceHolder.lockCanvas();
-
-            // Fill the screen with a color
-            mCanvas.drawColor(Color.argb(255, 26, 128, 182));
-
-            // Set the size and color of the mPaint for the text
-            mPaint.setColor(Color.argb(255, 255, 255, 255));
-            mPaint.setTextSize(75);
-
-            // Draw the score
-            mCanvas.drawText(String.valueOf(mScore), 20, 120, mPaint);
+           mCanvas = mSurfaceHolder.lockCanvas();
+            vis = new gameVisuals(mCanvas, mPaint);
+            vis.drawScreen(mScore);
 
             // Draw the apple and the snake
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
+            // Draw the bonus apple
+            mBonusApple.draw(mCanvas, mPaint, System.currentTimeMillis());
 
-            drawPause();
+            vis.drawPause(mPaused,getWidth());
+            vis.drawStars(getWidth(),getHeight());
+            for(int i=0; i<10;i++){
+                int x = (int) (Math.random() * getWidth());
+                int y = (int) (Math.random() * getHeight());
+                vis.drawPlanets(x,y);
+            }
 
             // Draw some text while paused
             if(mPaused){
-
-                // Set the size and color of the mPaint for the text
-                mPaint.setColor(Color.argb(255, 255, 255, 255));
-                mPaint.setTextSize(150);
-
-                // Draw the message
-                // We will give this an international upgrade soon
-                //mCanvas.drawText("Tap To Play!", 200, 700, mPaint);
-                mCanvas.drawText(getResources().
-                                getString(R.string.tap_to_play),
-                        180, 700, mPaint);
+                vis.drawText();
             }
-
 
             // Unlock the mCanvas and reveal the graphics for this frame
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
 
-    private Rect pauseButton;
-
-    private void drawPause(){
-        int leftX = getWidth() - 320;
-        int rightX = mPaused ? (leftX + 250) : (leftX + 210);
-        int top = 50;
-        int bottom = 150;
-        //drawing the pause button to implement pause function on screen during game
-        pauseButton = new Rect(leftX, top, rightX, bottom);
-        mPaint.setColor(Color.argb(150,255,153,51)); //orange button color
-        mCanvas.drawRect(pauseButton,mPaint);
-        mPaint.setColor(Color.argb(255,0,0,0)); //black txt color
-        mPaint.setTextSize(60);
-        String buttonTxt = mPaused ? "Resume" : "Pause";
-        mCanvas.drawText(buttonTxt,(leftX+20),120,mPaint);
-
-    }
-
-    private boolean isClicked(int touchX, int touchY){
-        return pauseButton.contains(touchX,touchY);
-    }
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -264,7 +250,7 @@ class SnakeGame extends SurfaceView implements Runnable{
         int y = (int) motionEvent.getY();
         // Let the Snake class handle the input
         if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-            if (isClicked(x, y)) {
+            if (vis.isClicked(x, y)) {
                 mPaused = !mPaused;
 
                 // Don't want to process snake direction for this tap

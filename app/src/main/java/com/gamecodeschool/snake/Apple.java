@@ -9,25 +9,25 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import java.util.Random;
 
-class Apple {
+class Apple implements gameObjects{
 
     // The location of the apple on the grid
     // Not in pixels
-    private Point location = new Point();
+    private final Point location = new Point();
 
     // The range of values we can choose from
     // to spawn an apple
-    private Point mSpawnRange;
-    private int mSize;
+    //private Point mSpawnRange;
+    private final int mSize;
 
     // An image to represent the apple
     private Bitmap mBitmapApple;
 
     /// Set up the apple in the constructor
-    Apple(Context context, Point sr, int s){
+    Apple(Context context,Point sr, int s){
 
         // Make a note of the passed in spawn range
-        mSpawnRange = sr;
+       // mSpawnRange = sr;
         // Make a note of the size of an apple
         mSize = s;
         // Hide the apple off-screen until the game starts
@@ -39,11 +39,12 @@ class Apple {
     }
 
     // This is called every time an apple is eaten
-    void spawn(){
+    @Override
+    public void reset(int x, int y){
         // Choose two random values and place the apple
         Random random = new Random();
-        location.x = random.nextInt(mSpawnRange.x) + 1;
-        location.y = random.nextInt(mSpawnRange.y - 1) + 1;
+        location.x = random.nextInt(x) + 1;
+        location.y = random.nextInt(y - 1) + 1;
     }
 
     // SnakeGame can share this with the snake
@@ -60,4 +61,7 @@ class Apple {
 
     }
 
+    public int getmSize(){return mSize;}
+
+    public Bitmap getmBitmapApple(){return mBitmapApple;}
 }
