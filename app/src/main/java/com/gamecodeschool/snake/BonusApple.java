@@ -25,10 +25,8 @@ public class BonusApple extends Apple {
         }
     }
 
-    // Method to draw the bonus apple on the canvas
-
     public void draw(Canvas canvas, Paint paint, long currentTime) {
-        updateBlinking(currentTime); // Update blinking state
+        updateBlinking(currentTime);
         if (isBlinking && (currentTime - blinkStartTime) % 1000 < 500) {
             // Draw the bonus apple only during the first half of each second (for blinking effect)
             canvas.drawBitmap(getmBitmapApple(), getLocation().x * getmSize(), getLocation().y * getmSize(), paint);
